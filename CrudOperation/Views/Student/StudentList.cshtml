@@ -1,0 +1,110 @@
+﻿@using CrudOperation.Models.Common
+@{
+    ViewData["Title"] = "Student List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int i = 1;
+    Pager pager = new Pager();
+    int pageNo = 0;
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+    int pageSize = ViewBag.ddlPageSize;
+    int zeroBasedPageNo = pageNo - 1;
+    if (zeroBasedPageNo < 0) zeroBasedPageNo = 0;
+
+    i = (pageSize * zeroBasedPageNo) + 1;
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <h2>Student Info</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <select name="fileType" id="fileType" class="form-control" onchange="toggleButton()">
+                <option value="">Select File Type</option>
+                <option value="pdf">Pdf</option>
+                <option value="word">Word</option>
+                <option value="excel">Excel</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="button" id="downloadButton" onclick="RdlcReport()" class="btn btn-primary" disabled><i class="fa fa-save" style="font-size:13px;color:white"></i>Download Report</button>
+        </div>
+    </div>
+    </br>
+    <table>
+        <tr>
+            <th>SL</th>
+            <th>Name</th>
+            <th>FatherName</th>
+            <th>DateOfBirth</th>
+            <th>Gender</th>
+            <th>District</th>
+        </tr>
+        @foreach (var data in ViewBag.StudentList)
+        {
+            <tr>
+                <td>@i</td>
+                <td>@data.Name</td>
+                <td>@data.FatherName</td>
+                <td>@data.DateOfBirthString</td>
+                <td>@data.Gender</td>
+                <td>@data.District</td>
+            </tr>
+            i++;
+        }
+    </table>
+    </br>
+    @if (pager != null)
+    {
+        <tr>
+            <partial name="_Pager" model="@pager" />
+        </tr>
+    }
+</body>
+</html>
+
+<script type="text/javascript">
+
+    function toggleButton() {
+        var selectElement = document.getElementById("fileType").value;
+        var buttonElement = document.getElementById("downloadButton");
+
+        if (selectElement == "" || selectElement == null) {
+            buttonElement.disabled = true;
+        }
+        else{
+            buttonElement.disabled = false;
+        }
+    }
+
+    function RdlcReport() {
+        var fileType = $('#fileType').val();
+        window.location = '/Student/RdlcReport?fileType=' + fileType;
+    }
+</script>
+

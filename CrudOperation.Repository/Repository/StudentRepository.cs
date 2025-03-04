@@ -37,22 +37,22 @@ namespace CrudOperation.Repository.Repository
                     {
                         _ext = ".jpg";
                     }
+
                     var _comPath = _he.WebRootPath + "\\Images\\";
-                    PhotoPath = "Picture" + DateTime.Now.Second + "" + DateTime.Now.Minute + "" + DateTime.Now.Day + "" + DateTime.Now.Month + "" + DateTime.Now.Year + "_Resized" + _ext;
-
-                    System.Drawing.Image sourceimage = System.Drawing.Image.FromStream(model.Picture.OpenReadStream());
-
-                    Bitmap? b = new Bitmap(sourceimage);
-                    Image? i = b;
-
+                    PhotoPath = "Picture" + DateTime.Now.Second + DateTime.Now.Minute + DateTime.Now.Day + DateTime.Now.Month + DateTime.Now.Year + "_Resized" + _ext;
+                    
+                    using System.Drawing.Image sourceimage = System.Drawing.Image.FromStream(model.Picture.OpenReadStream());
+                    using Bitmap b = new Bitmap(sourceimage);
+                    using Image i = b;
+                    
                     i.Save(_comPath + PhotoPath);
-                    i.Dispose();
-                    sourceimage.Dispose();
-                    b.Dispose();
                 }
+
+                
                 using var connection = new SqlConnection(_connectionString);
                 connection.Open();
 
+                
                 var result = await connection.ExecuteAsync("SP_InsertStudentInfo", new
                 {
                     Name = model.Name,
@@ -64,10 +64,17 @@ namespace CrudOperation.Repository.Repository
                 },
                 commandType: CommandType.StoredProcedure, commandTimeout: 0);
 
+                
                 if (result > 0)
                 {
                     commonResponseModel.Success = true;
-                    commonResponseModel.Message = "Data saved successfully!!";
+                    commonResponseModel.Message = "Data saved successfully!";
+                }
+                else
+                {
+                    
+                    commonResponseModel.Success = false;
+                    commonResponseModel.Message = "Failed to save data!";
                 }
             }
             catch (Exception ex)
@@ -75,6 +82,7 @@ namespace CrudOperation.Repository.Repository
                 commonResponseModel.Success = false;
                 commonResponseModel.Message = ex.Message;
             }
+
             return commonResponseModel;
         }
 
